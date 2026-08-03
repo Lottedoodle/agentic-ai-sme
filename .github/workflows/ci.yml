@@ -13,6 +13,7 @@ permissions:
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'ap-southeast-2' }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY || 'glow-beauty-api' }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
   test:
