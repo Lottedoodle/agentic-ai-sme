@@ -1,0 +1,67 @@
+# Manual OIDC smoke test — run from Actions → "OIDC Debug" → Run workflow
+name: OIDC Debug
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  debug-oidc:
+    name: Debug GitHub → AWS OIDC
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print workflow context
+        run: |
+          echo "repository=${{ github.repository }}"
+          echo "ref=${{ github.ref }}"
+          echo "event=${{ github.event_name }}"
+          echo "expected_trust_sub=repo:Lottedoodle/ai-homework:*"
+          echo "expected_role_arn=arn:aws:iam::047750375159:role/github-action-ai-homework-role"
+
+      - name: Decode OIDC token claims
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value')
+          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null)
+          echo "$PAYLOAD" | jq '{sub, aud, ref, repository, repository_owner}'
+
+      - name: Validate AWS_ROLE_TO_ASSUME secret
+        env:
+          ROLE_ARN: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        run: |
+          if [ -z "$ROLE_ARN" ]; then
+            echo "::error::AWS_ROLE_TO_ASSUME is NOT SET."
+            echo "Set repo secret to: arn:aws:iam::047750375159:role/github-action-ai-homework-role"
+            exit 1
+          fi
+          echo "Secret length: ${#ROLE_ARN} chars"
+          case "$ROLE_ARN" in
+            arn:aws:iam::047750375159:role/github-action-ai-homework-role)
+              echo "Role ARN matches expected value"
+              ;;
+            arn:aws:iam::*:role/*)
+              echo "::warning::Role ARN format OK but account/name may differ from expected"
+              ;;
+            arn:aws:iam::*:user/*)
+              echo "::error::Secret is an IAM USER ARN — OIDC needs a ROLE ARN."
+              echo "Use: arn:aws:iam::047750375159:role/github-action-ai-homework-role"
+              exit 1
+              ;;
+            *)
+              echo "::error::Invalid AWS_ROLE_TO_ASSUME — must be arn:aws:iam::ACCOUNT:role/NAME"
+              exit 1
+              ;;
+          esac
+
+      - name: Try assume role (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ap-southeast-2
+          role-session-name: oidc-debug-${{ github.run_id }}
+
+      - name: Confirm AWS identity
+        run: aws sts get-caller-identity

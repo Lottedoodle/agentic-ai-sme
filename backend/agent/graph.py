@@ -719,7 +719,8 @@ def _sanitize_product_filters(
 
     if cleaned.category:
         canonical = category_values.get(cleaned.category.casefold())
-        cleaned.category = canonical
+        if canonical:
+            cleaned.category = canonical
     if not cleaned.category:
         cleaned.category = _infer_category_from_samples(question, samples)
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from langchain_core.messages import ToolMessage
 
@@ -33,7 +33,38 @@ from backend.repositories.product_catalog import (
 )
 
 
+MOCK_CATALOG_METADATA = {
+    "category_values": ["lipstick", "foundation", "mascara", "cushion", "eyeshadow"],
+    "shade_values": [
+        "Nude Beige",
+        "Coral Red",
+        "Cherry Red",
+        "Pink Rose",
+        "C2 Natural",
+        "21 Light",
+        "23 Natural",
+        "01 Nude Beige",
+        "05 Orange Pop",
+    ],
+    "sample_products": [
+        {"name": "Matte Lipstick 01", "category": "lipstick", "shade": "Nude Beige", "sku": "LIP-001"},
+        {"name": "Matte Lipstick 03", "category": "lipstick", "shade": "Coral Red", "sku": "LIP-003"},
+        {"name": "Matte Lipstick 05", "category": "lipstick", "shade": "Cherry Red", "sku": "LIP-005"},
+        {"name": "ลิปแมตต์ 99", "category": "lipstick", "shade": "Pink Rose", "sku": "LIP-099"},
+    ],
+}
+
+
 class ShopAgentRoutingTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._metadata_patch = patch(
+            "backend.repositories.product_catalog.get_product_catalog_metadata",
+            return_value=MOCK_CATALOG_METADATA,
+        )
+        self._metadata_patch.start()
+
+    def tearDown(self) -> None:
+        self._metadata_patch.stop()
     def test_normalized_plan_preserves_structured_product_filters(self) -> None:
         plan = ExecutionPlan(
             intent="product_data",
