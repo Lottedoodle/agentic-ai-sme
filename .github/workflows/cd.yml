@@ -1,0 +1,79 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "ECR image tag (git sha 12 ตัว หรือ latest)"
+        required: false
+        default: latest
+
+permissions:
+  contents: read
+  id-token: write
+  actions: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'ap-southeast-2' }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY || 'glow-beauty-api' }}
+  ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'glow-beauty-cluster' }}
+  ECS_SERVICE: ${{ vars.ECS_SERVICE || 'glow-beauty-api' }}
+  ECS_TASK_DEFINITION: ${{ vars.ECS_TASK_DEFINITION || 'glow-beauty-api' }}
+  CONTAINER_NAME: ${{ vars.ECS_CONTAINER_NAME || 'glow-beauty-api' }}
+
+jobs:
+  deploy:
+    name: Deploy to ECS Fargate
+    runs-on: ubuntu-latest
+    # workflow_run: เฉพาะเมื่อ CI สำเร็จ; workflow_dispatch: รันมือได้เสมอ
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Resolve image tag
+        id: image
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.image_tag }}"
+          else
+            TAG="$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-12)"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Deploying tag: ${TAG}"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Download ECS task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "$ECS_TASK_DEFINITION" \
+            --query taskDefinition \
+            > task-definition.json
+
+      - name: Render Amazon ECS task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.image.outputs.tag }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

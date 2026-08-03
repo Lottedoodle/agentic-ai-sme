@@ -1,0 +1,14 @@
+{
+  "name": "ecom-project-v1",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "concurrently -n backend,frontend -c blue,green \"uv run --project backend python -m uvicorn backend.api.main:app --reload --port 8000\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "uv run --project backend python -m uvicorn backend.api.main:app --reload --port 8000",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "test": "uv run --project backend python -m unittest discover -s backend/tests -v"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
