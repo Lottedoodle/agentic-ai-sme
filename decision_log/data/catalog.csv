@@ -1,0 +1,31 @@
+sku,name_th,category,shade,price_thb,stock_qty
+LIP-001,ลิปสติกแมตต์ เบอร์ 01 Nude Beige,lipstick,Nude Beige,290,45
+LIP-002,ลิปสติกแมตต์ เบอร์ 02 Coral Red,lipstick,Coral Red,290,0
+LIP-003,ลิปสติกแมตต์ เบอร์ 03 Cherry,lipstick,Cherry Red,290,12
+LIP-004,ลิปสติกแมตต์ เบอร์ 04 Pink Rose,lipstick,Pink Rose,290,30
+LIP-005,ลิปทินท์ เบอร์ 05 Orange Pop,lip tint,Orange,250,8
+LIP-006,ลิปทินท์ เบอร์ 06 Berry,lip tint,Berry,250,0
+FDN-001,รองพื้นแมตต์ Shade C1 (ผิวขาว),foundation,C1 Fair,450,20
+FDN-002,รองพื้นแมตต์ Shade C2 (ผิวสองสี),foundation,C2 Natural,450,15
+FDN-003,รองพื้นแมตต์ Shade C3 (ผิวแทน),foundation,C3 Tan,450,3
+CSH-001,คุชชั่น Shade 21 (ผิวขาว),cushion,21 Light,520,25
+CSH-002,คุชชั่น Shade 23 (ผิวธรรมชาติ),cushion,23 Natural,520,18
+CSH-003,คุชชั่นรีฟิล Shade 21,cushion refill,21 Light,320,10
+SUN-001,กันแดด SPF50 PA++++ 40ml,sunscreen,-,390,50
+SUN-002,กันแดดสเปรย์ SPF50 150ml,sunscreen,-,350,0
+SRM-001,เซรั่มวิตามินซี 30ml,serum,-,590,22
+SRM-002,เซรั่มไฮยาลูรอน 30ml,serum,-,550,14
+SRM-003,เซรั่มลดสิว 15ml,serum,-,420,6
+TNR-001,โทนเนอร์ใสเคลียร์ 200ml,toner,-,320,28
+CLN-001,เจลล้างหน้า 120ml,cleanser,-,250,40
+CLN-002,โฟมล้างหน้าฟองนุ่ม 100g,cleanser,-,220,33
+MSK-001,มาส์กแผ่น Aqua (1 แผ่น),mask,-,45,200
+MSK-002,มาส์กแผ่น Brightening (กล่อง 10 แผ่น),mask,-,390,17
+EYE-001,อายแชโดว์พาเลท 9 สี Warm Tone,eyeshadow,Warm,480,9
+EYE-002,อายแชโดว์พาเลท 9 สี Cool Tone,eyeshadow,Cool,480,0
+MSC-001,มาสคาร่ากันน้ำ Black,mascara,Black,290,19
+BLH-001,บลัชออน เบอร์ 01 Peach,blush,Peach,260,24
+BLH-002,บลัชออน เบอร์ 02 Rose,blush,Rose,260,11
+SPR-001,สเปรย์ล็อกเมคอัพ 100ml,setting spray,-,350,13
+SET-001,เซ็ตเริ่มต้นแต่งหน้า (รองพื้น+ลิป+คุชชั่น),set,-,1090,5
+GFT-001,บัตรของขวัญมูลค่า 500 บาท,gift card,-,500,999
