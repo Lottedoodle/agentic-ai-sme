@@ -18,8 +18,9 @@ jobs:
           echo "repository=${{ github.repository }}"
           echo "ref=${{ github.ref }}"
           echo "event=${{ github.event_name }}"
-          echo "expected_trust_sub=repo:Lottedoodle/ai-homework:*"
-          echo "expected_role_arn=arn:aws:iam::047750375159:role/github-action-ai-homework-role"
+          echo "expected_trust_sub_legacy=repo:Lottedoodle/ai-homework:*"
+          echo "expected_trust_sub_immutable=repo:Lottedoodle@186276861/ai-homework@1321058233:*"
+          echo "note=repos created after 2026-07-15 use immutable sub with @ownerId/@repoId"
 
       - name: Decode OIDC token claims
         run: |
