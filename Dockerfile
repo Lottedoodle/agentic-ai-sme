@@ -17,7 +17,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv
 
 # Dependency layer (cache-friendly)
-COPY backend/pyproject.toml backend/uv.lock backend/README.md ./backend/
+COPY backend/pyproject.toml backend/uv.lock ./backend/
 RUN uv sync --project backend --frozen --no-dev --no-install-project
 
 # Application source — package import path is `backend.*`

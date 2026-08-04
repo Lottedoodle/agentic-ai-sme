@@ -49,40 +49,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Decode OIDC token (debug sub claim)
-        run: |
-          echo "GitHub repository=${{ github.repository }}"
-          echo "GitHub ref=${{ github.ref }}"
-          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value')
-          echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq '{sub,aud,ref,repository}'
-          echo ""
-          echo "If sub contains @ IDs (immutable claims), trust policy must include:"
-          echo "  repo:Lottedoodle@186276861/ai-homework@1321058233:*"
-          echo "NOT only the legacy format: repo:Lottedoodle/ai-homework:*"
-
-      - name: Validate AWS_ROLE_TO_ASSUME secret
-        env:
-          ROLE_ARN: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-        run: |
-          if [ -z "$ROLE_ARN" ]; then
-            echo "::error::AWS_ROLE_TO_ASSUME is not set in repo secrets."
-            echo "Set: arn:aws:iam::047750375159:role/github-action-ai-homework-role"
-            exit 1
-          fi
-          case "$ROLE_ARN" in
-            arn:aws:iam::*:user/*)
-              echo "::error::AWS_ROLE_TO_ASSUME is an IAM USER ARN — use ROLE ARN instead."
-              echo "Expected: arn:aws:iam::047750375159:role/github-action-ai-homework-role"
-              exit 1
-              ;;
-            arn:aws:iam::*:role/*) echo "Role ARN format OK" ;;
-            *)
-              echo "::error::Invalid AWS_ROLE_TO_ASSUME — must be arn:aws:iam::ACCOUNT:role/NAME"
-              exit 1
-              ;;
-          esac
-
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
